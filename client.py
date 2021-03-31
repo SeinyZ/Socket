@@ -1,8 +1,39 @@
 import socket
-HOST = '127.0.0.1'
-PORT = 65432
-with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as s:
-    s.connect((HOST,PORT))
-    s.sendall(b'ciao mondo!')
-    data = s.recv(1024)
-print ('Received', data.decode())
+
+SERVER_ADDRESS = '127.0.0.1'
+SERVER_PORT = 22224
+
+sock_service = socket.socket()
+
+sock_service.connect((SERVER_ADDRESS, SERVER_PORT))
+
+print("Connesso a " + str((SERVER_ADDRESS, SERVER_PORT)))
+while True:
+    try:
+        dati = input("Inserisci i dati da inviare (0 per terminare la connessione): ")
+    except EOFError:
+        print("\nOkay. Exit")
+        break
+    if not dati:
+        print("Non puoi inviare una stringa vuota!")
+        continue
+    if dati == '0':
+        print("Chiudo la connessione con il server!")
+        break
+    
+    dati = dati.encode()
+
+    sock_service.send(dati)
+
+    dati = sock_service.recv(2048)
+
+    if not dati:
+        print("Server non risponde. Exit")
+        break
+    
+    dati = dati.decode()
+
+    print("Ricevuto dal server:")
+    print(dati + '\n')
+
+sock_service.close()
